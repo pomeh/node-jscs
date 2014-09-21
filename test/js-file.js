@@ -206,6 +206,102 @@ describe('modules/js-file', function() {
         assert(nextToken === undefined);
     });
 
+    it('should find the first previous token when only the type is specified', function() {
+        var str = 'switch(varName){case"yes":a++;break;}';
+        var file = new JsFile(null, str, esprima.parse(str, {loc: true, range: true, tokens: true}));
+
+        var tokens = file.getTokens();
+
+        var lastToken = tokens[tokens.length - 1];
+        assert(lastToken.type === 'Punctuator');
+        assert(lastToken.value === '}');
+
+        var previousToken = file.findPrevToken(lastToken, 'Identifier');
+        assert(previousToken.type === 'Identifier');
+        assert(previousToken.value === 'a');
+
+        previousToken = file.findPrevToken(lastToken, 'Keyword');
+        assert(previousToken.type === 'Keyword');
+        assert(previousToken.value === 'break');
+
+        previousToken = file.findPrevToken(lastToken, 'Punctuator');
+        assert(previousToken.type === 'Punctuator');
+        assert(previousToken.value === ';');
+    });
+
+    it('should find the first previous token when both type and value are specified', function() {
+        var str = 'switch(varName){case"yes":a++;break;}';
+        var file = new JsFile(null, str, esprima.parse(str, {loc: true, range: true, tokens: true}));
+
+        var tokens = file.getTokens();
+
+        var lastToken = tokens[tokens.length - 1];
+        assert(lastToken.type === 'Punctuator');
+        assert(lastToken.value === '}');
+
+        var previousToken = file.findPrevToken(lastToken, 'Identifier', 'a');
+        assert(previousToken.type === 'Identifier');
+        assert(previousToken.value === 'a');
+
+        previousToken = file.findPrevToken(lastToken, 'Keyword', 'break');
+        assert(previousToken.type === 'Keyword');
+        assert(previousToken.value === 'break');
+
+        previousToken = file.findPrevToken(lastToken, 'Punctuator', ';');
+        assert(previousToken.type === 'Punctuator');
+        assert(previousToken.value === ';');
+    });
+
+    it('should find the correct previous token when both type and value are specified', function() {
+        var str = 'switch(varName){case"yes":a++;break;}';
+        var file = new JsFile(null, str, esprima.parse(str, {loc: true, range: true, tokens: true}));
+
+        var tokens = file.getTokens();
+
+        var lastToken = tokens[tokens.length - 1];
+        assert(lastToken.type === 'Punctuator');
+        assert(lastToken.value === '}');
+
+        var previousToken = file.findPrevToken(lastToken, 'Keyword', 'case');
+        assert(previousToken.type === 'Keyword');
+        assert(previousToken.value === 'case');
+
+        previousToken = file.findPrevToken(lastToken, 'Punctuator', '{');
+        assert(previousToken.type === 'Punctuator');
+        assert(previousToken.value === '{');
+
+        previousToken = file.findPrevToken(lastToken, 'Punctuator', ':');
+        assert(previousToken.type === 'Punctuator');
+        assert(previousToken.value === ':');
+
+        previousToken = file.findPrevToken(lastToken, 'Punctuator', '(');
+        assert(previousToken.type === 'Punctuator');
+        assert(previousToken.value === '(');
+    });
+
+    it('should not find any token if it does not exist', function() {
+        var str = 'switch(varName){case"yes":a++;break;}';
+        var file = new JsFile(null, str, esprima.parse(str, {loc: true, range: true, tokens: true}));
+
+        var tokens = file.getTokens();
+
+        var lastToken = tokens[tokens.length - 1];
+        assert(lastToken.type === 'Punctuator');
+        assert(lastToken.value === '}');
+
+        var previousToken = file.findPrevToken(lastToken, 'Keyword', 'if');
+        assert(previousToken === undefined);
+
+        previousToken = file.findPrevToken(lastToken, 'Numeric');
+        assert(previousToken === undefined);
+
+        previousToken = file.findPrevToken(lastToken, 'Boolean');
+        assert(previousToken === undefined);
+
+        previousToken = file.findPrevToken(lastToken, 'Null');
+        assert(previousToken === undefined);
+    });
+
     it('should find prev token', function() {
         var str = 'if (true);';
         var file = new JsFile(null, str, esprima.parse(str, {loc: true, range: true, tokens: true}));
