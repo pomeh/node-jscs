@@ -196,4 +196,12 @@ describe('rules/require-newline-before-block-statements', function() {
         });
     });
 
+/*
+    describe('option value "if"', function() {
+        beforeEach(function() {
+            checker.configure({ requireNewlineBeforeBlockStatements: ['if'] });
+        });
+    });
+*/
+
 });
